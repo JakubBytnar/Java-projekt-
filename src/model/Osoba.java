@@ -1,3 +1,5 @@
+package model;
+
 import java.io.Serializable;
 
 // Dodajemy implements Serializable, żeby później móc zapisywać obiekty do pliku

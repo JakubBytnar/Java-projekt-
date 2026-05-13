@@ -1,3 +1,5 @@
+package model;
+
 // Apartament dziedziczy po Pokoju
 public class Apartament extends Pokoj {
     private String nazwaWlasna; // np. "Apartament Prezydencki"
