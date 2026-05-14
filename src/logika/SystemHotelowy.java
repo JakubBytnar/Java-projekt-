@@ -13,6 +13,16 @@ import java.util.Map;
 import java.util.Set;
 
 public class SystemHotelowy implements Serializable {
+
+    private static final int MAX_LICZBA_POKOI = 60;
+
+    private static final int LIMIT_POKOI_1_OS = 20;
+    private static final int LIMIT_POKOI_2_OS = 40;
+
+    private static final double CENA_1_OS = 100.0;
+    private static final double CENA_2_OS = 120.0;
+    private static final double CENA_3_OS = 135.0;
+
     private static SystemHotelowy instancja;
 
     private Map<Integer, Pokoj> pokoje;
@@ -36,23 +46,24 @@ public class SystemHotelowy implements Serializable {
         instancja = wczytanaInstancja;
     }
 
+    // Generator używa teraz profesjonalnych, opisowych stałych
     public void generujPokojeStartowe() {
         if (pokoje.isEmpty()) {
-            for (int i = 1; i <= 60; i++) {
+            for (int i = 1; i <= MAX_LICZBA_POKOI; i++) {
                 int pojemnosc;
                 double cena;
 
-                if (i <= 20) {
+                if (i <= LIMIT_POKOI_1_OS) {
                     pojemnosc = 1;
-                    cena = 100.0; // 1-osobowy za 100 zł
+                    cena = CENA_1_OS;
                 }
-                else if (i <= 40) {
+                else if (i <= LIMIT_POKOI_2_OS) {
                     pojemnosc = 2;
-                    cena = 120.0; // 2-osobowy za 120 zł
+                    cena = CENA_2_OS;
                 }
                 else {
                     pojemnosc = 3;
-                    cena = 135.0; // 3-osobowy za 135 zł
+                    cena = CENA_3_OS;
                 }
 
                 pokoje.put(i, new Pokoj(i, cena, pojemnosc));
