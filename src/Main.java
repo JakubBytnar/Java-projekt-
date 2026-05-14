@@ -18,7 +18,6 @@ public class Main extends JFrame {
     private JTable tabelaRezerwacji;
 
     public Main() {
-        // Wczytywanie bazy i generowanie 60 pokoi
         SystemHotelowy wczytany = NarzedziaHotelowe.wczytajSystem();
         if (wczytany != null) {
             SystemHotelowy.setInstancja(wczytany);
@@ -28,40 +27,67 @@ public class Main extends JFrame {
 
         // Ustawienia okna
         setTitle("System Zarządzania Hotelem - Recepcja PRO");
-        setSize(900, 450);
+        setSize(1000, 500); // Jeszcze szersze okno, żeby zmieścić nowe kolumny
         setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-        setLayout(new BorderLayout(10, 10));
+        setLayout(new BorderLayout(15, 15)); // Większe marginesy w oknie
 
-        // Tworzenie tabeli
-        String[] kolumny = {"Moment Rejestracji", "Gość", "Nr Pokoju", "Pojemność", "Data Wyjazdu"};
+        // Nowe, ładne czcionki (wygląd komercyjnej aplikacji)
+        Font czcionkaTabeli = new Font("Segoe UI", Font.PLAIN, 14);
+        Font czcionkaNaglowkow = new Font("Segoe UI", Font.BOLD, 15);
+
+        // Zaktualizowane kolumny tabeli
+        String[] kolumny = {"Moment Rejestracji", "Gość", "Pokój", "Data Przyjazdu", "Data Wyjazdu", "Łączna Kwota"};
         modelTabeli = new DefaultTableModel(kolumny, 0);
         tabelaRezerwacji = new JTable(modelTabeli);
-        JScrollPane scrollPane = new JScrollPane(tabelaRezerwacji);
-        odswiezTabele(); // Wypełnia tabelę danymi
 
-        // Przyciski
-        JPanel panelPrzyciskow = new JPanel();
+        // Stylowanie tabeli
+        tabelaRezerwacji.setFont(czcionkaTabeli);
+        tabelaRezerwacji.setRowHeight(30); // Wyższe, bardziej czytelne wiersze
+        tabelaRezerwacji.getTableHeader().setFont(czcionkaNaglowkow);
+        tabelaRezerwacji.getTableHeader().setBackground(new Color(70, 130, 180)); // Niebieski kolor nagłówka
+        tabelaRezerwacji.getTableHeader().setForeground(Color.WHITE); // Biały tekst nagłówka
+
+        JScrollPane scrollPane = new JScrollPane(tabelaRezerwacji);
+        odswiezTabele();
+
+        // Tworzenie dolnego panelu z przyciskami (z fajnymi marginesami)
+        JPanel panelPrzyciskow = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
+        panelPrzyciskow.setBorder(BorderFactory.createEmptyBorder(10, 10, 20, 10));
+
         JButton btnZamelduj = new JButton("Zamelduj Nowego Gościa");
         JButton btnWyjdz = new JButton("Zapisz i Wyjdź");
+
+        // Stylowanie przycisków
+        btnZamelduj.setFont(czcionkaNaglowkow);
+        btnZamelduj.setBackground(new Color(46, 139, 87)); // Zielony (Sea Green)
+        btnZamelduj.setForeground(Color.WHITE);
+        btnZamelduj.setFocusPainted(false); // Usuwa brzydką ramkę po kliknięciu
+
+        btnWyjdz.setFont(czcionkaNaglowkow);
+        btnWyjdz.setBackground(new Color(178, 34, 34)); // Czerwony (Firebrick)
+        btnWyjdz.setForeground(Color.WHITE);
+        btnWyjdz.setFocusPainted(false);
+
         panelPrzyciskow.add(btnZamelduj);
         panelPrzyciskow.add(btnWyjdz);
 
-        // Akcja meldunku
         btnZamelduj.addActionListener(e -> zameldujGoscia());
-
-        // Akcja wyjścia
         btnWyjdz.addActionListener(e -> wyjdzZProgramu());
         addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) { wyjdzZProgramu(); }
         });
 
-        // Układanie elementów w oknie
-        add(new JLabel("  Aktywne meldunki:"), BorderLayout.NORTH);
+        // Tytuł nad tabelą
+        JLabel tytul = new JLabel("   Aktywne rezerwacje i meldunki w systemie:");
+        tytul.setFont(new Font("Segoe UI", Font.BOLD, 18));
+        tytul.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0));
+
+        add(tytul, BorderLayout.NORTH);
         add(scrollPane, BorderLayout.CENTER);
         add(panelPrzyciskow, BorderLayout.SOUTH);
 
-        setLocationRelativeTo(null);
+        setLocationRelativeTo(null); // Wyśrodkowanie okna na ekranie
     }
 
     private void zameldujGoscia() {
@@ -75,20 +101,17 @@ public class Main extends JFrame {
             String pesel = JOptionPane.showInputDialog(this, "Podaj PESEL (11 cyfr):");
             if (pesel == null) return;
 
-            // Wybór pojemności pokoju
             String[] opcje = {"1-osobowy", "2-osobowy", "3-osobowy"};
             int wybor = JOptionPane.showOptionDialog(this, "Wybierz rodzaj pokoju:", "Rezerwacja",
                     JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, opcje, opcje[1]);
 
             if (wybor == -1) return;
-            int wymaganaPojemnosc = wybor + 1; // Bo index to 0, 1, 2
+            int wymaganaPojemnosc = wybor + 1;
 
-            // Pytanie o liczbę nocy
             String noceStr = JOptionPane.showInputDialog(this, "Na ile nocy zostaje gość?");
             if (noceStr == null) return;
             int liczbaNocy = Integer.parseInt(noceStr);
 
-            // Szukanie pokoju i walidacja danych (ZleDaneWyjatek)
             Pokoj przypisanyPokoj = system.znajdzWolnyPokoj(wymaganaPojemnosc);
 
             if (przypisanyPokoj != null) {
@@ -98,8 +121,10 @@ public class Main extends JFrame {
                 Rezerwacja nowaRezerwacja = new Rezerwacja(gosc, przypisanyPokoj, LocalDate.now(), liczbaNocy);
                 system.dodajRezerwacje(nowaRezerwacja);
 
-                odswiezTabele(); // Aktualizujemy widok!
-                JOptionPane.showMessageDialog(this, "Sukces! Zameldowano w: " + przypisanyPokoj.toString());
+                odswiezTabele();
+                JOptionPane.showMessageDialog(this, "Sukces! Zarezerwowano pokój nr " + przypisanyPokoj.getNumer() +
+                                "\nKwota do zapłaty: " + nowaRezerwacja.getLacznaKwota() + " zł",
+                        "Zameldowano", JOptionPane.INFORMATION_MESSAGE);
             } else {
                 JOptionPane.showMessageDialog(this, "Brak wolnych pokoi " + wymaganaPojemnosc + "-osobowych!", "Brak Miejsc", JOptionPane.WARNING_MESSAGE);
             }
@@ -117,9 +142,10 @@ public class Main extends JFrame {
             Object[] wiersz = {
                     r.getSformatowanyCzas(),
                     r.getGosc().getImie() + " " + r.getGosc().getNazwisko(),
-                    "Nr " + r.getPokoj().getNumer(),
-                    r.getPokoj().getPojemnosc() + "-osobowy",
-                    r.getDataWyjazdu().toString() // Automatycznie wyliczona data wymeldowania!
+                    "Nr " + r.getPokoj().getNumer() + " (" + r.getPokoj().getPojemnosc() + "-os)",
+                    r.getDataPrzyjazdu().toString(), // NOWOŚĆ: Data przyjazdu
+                    r.getDataWyjazdu().toString(),
+                    r.getLacznaKwota() + " zł"       // NOWOŚĆ: Obliczona łączna kwota (dni * 100 zł)
             };
             modelTabeli.addRow(wiersz);
         }
@@ -131,6 +157,7 @@ public class Main extends JFrame {
     }
 
     public static void main(String[] args) {
+        // Uruchamiamy nowy, piękny interfejs!
         SwingUtilities.invokeLater(() -> new Main().setVisible(true));
     }
 }

@@ -36,29 +36,28 @@ public class SystemHotelowy implements Serializable {
         instancja = wczytanaInstancja;
     }
 
-    // NOWOŚĆ 1: Metoda generująca 60 pokoi przy pierwszym uruchomieniu
     public void generujPokojeStartowe() {
         if (pokoje.isEmpty()) {
             for (int i = 1; i <= 60; i++) {
                 int pojemnosc;
-                double cena;
-                if (i <= 20) { pojemnosc = 1; cena = 120.0; }
-                else if (i <= 40) { pojemnosc = 2; cena = 200.0; }
-                else { pojemnosc = 3; cena = 270.0; }
+                double cena = 100.0; // ZMIANA: Każdy pokój ma teraz stałą cenę 100 zł
+
+                if (i <= 20) { pojemnosc = 1; }
+                else if (i <= 40) { pojemnosc = 2; }
+                else { pojemnosc = 3; }
 
                 pokoje.put(i, new Pokoj(i, cena, pojemnosc));
             }
         }
     }
 
-    // NOWOŚĆ 2: Szuka pierwszego wolnego pokoju o wybranej pojemności
     public Pokoj znajdzWolnyPokoj(int wymaganaPojemnosc) {
         for (Pokoj p : pokoje.values()) {
             if (!p.isCzyZajety() && p.getPojemnosc() == wymaganaPojemnosc) {
                 return p;
             }
         }
-        return null; // Zwraca null, jeśli hotel jest pełny
+        return null;
     }
 
     public void dodajGoscia(Gosc g) { goscie.add(g); }

@@ -4,21 +4,21 @@ import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit; // Dodany import do liczenia różnicy dat
 
 public class Rezerwacja implements Serializable {
     private Gosc gosc;
     private Pokoj pokoj;
     private LocalDate dataPrzyjazdu;
     private LocalDate dataWyjazdu;
-    private LocalDateTime momentZapisu; // Zapisuje dokładną datę i godzinę kliknięcia
+    private LocalDateTime momentZapisu;
 
-    // Nowy konstruktor przyjmujący ilość nocy
     public Rezerwacja(Gosc gosc, Pokoj pokoj, LocalDate przyjazd, int liczbaNocy) {
         this.gosc = gosc;
         this.pokoj = pokoj;
         this.dataPrzyjazdu = przyjazd;
-        this.dataWyjazdu = przyjazd.plusDays(liczbaNocy); // Automatycznie wylicza datę wyjazdu!
-        this.momentZapisu = LocalDateTime.now(); // Pobiera aktualny czas systemowy
+        this.dataWyjazdu = przyjazd.plusDays(liczbaNocy);
+        this.momentZapisu = LocalDateTime.now();
         this.pokoj.setCzyZajety(true);
     }
 
@@ -27,7 +27,13 @@ public class Rezerwacja implements Serializable {
     public LocalDate getDataPrzyjazdu() { return dataPrzyjazdu; }
     public LocalDate getDataWyjazdu() { return dataWyjazdu; }
 
-    // Ta metoda ładnie sformatuje nam czas do wyświetlenia w tabeli
+    // NOWOŚĆ: Metoda obliczająca łączną kwotę za pobyt
+    public double getLacznaKwota() {
+        // Liczy ilość dni między datą przyjazdu a wyjazdu
+        long liczbaNocy = ChronoUnit.DAYS.between(dataPrzyjazdu, dataWyjazdu);
+        return liczbaNocy * pokoj.getCenaZaNoc();
+    }
+
     public String getSformatowanyCzas() {
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss");
         return dtf.format(momentZapisu);
