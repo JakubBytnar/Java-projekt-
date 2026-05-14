@@ -2,11 +2,11 @@ package model;
 
 import wyjatki.ZleDaneWyjatek;
 import java.io.Serializable;
+import java.util.Objects; // NOWOŚĆ: Potrzebne do bezpiecznego porównywania
 
-// Wymaganie: Implementacja interfejsu (implements Rabatowalny)
 public class Gosc extends Osoba implements Serializable, Rabat {
     private String pesel;
-    private boolean czyVip; // Nowe pole
+    private boolean czyVip;
 
     public Gosc(String imie, String nazwisko, String pesel, boolean czyVip) throws ZleDaneWyjatek {
         super(imie, nazwisko);
@@ -24,18 +24,40 @@ public class Gosc extends Osoba implements Serializable, Rabat {
         this.pesel = pesel;
     }
 
-    // Wymaganie: Zaimplementowana metoda z interfejsu
     @Override
     public double naliczZnizke(double kwotaPoczatkowa) {
         if (czyVip) {
-            return kwotaPoczatkowa * 0.85; // 15% zniżki dla VIP
+            return kwotaPoczatkowa * 0.85;
         }
-        return kwotaPoczatkowa; // Brak zniżki
+        return kwotaPoczatkowa;
     }
 
     @Override
     public String pobierzInformacje() {
         String status = czyVip ? " (VIP)" : "";
         return "Gość: " + getImie() + " " + getNazwisko() + " (PESEL: " + pesel + ")" + status;
+    }
+
+    // =================================================================
+    // NOWOŚĆ: Naprawa błędu z duplikatami (Kontrakt equals i hashCode)
+    // =================================================================
+
+    @Override
+    public boolean equals(Object o) {
+        // 1. Jeśli to ten sam obiekt w pamięci, to na pewno są identyczni
+        if (this == o) return true;
+        // 2. Jeśli porównywany obiekt jest nullem lub z innej klasy, to nie są tacy sami
+        if (o == null || getClass() != o.getClass()) return false;
+
+        // 3. Rzutujemy na Gościa i porównujemy ich PESEL-e
+        Gosc gosc = (Gosc) o;
+        return Objects.equals(pesel, gosc.pesel);
+    }
+
+    @Override
+    public int hashCode() {
+        // Generuje unikalny kod (tzw. hash) na podstawie numeru PESEL.
+        // Dzięki temu Set (zbiór) w Systemie Hotelowym wie, gdzie szukać duplikatów.
+        return Objects.hash(pesel);
     }
 }
