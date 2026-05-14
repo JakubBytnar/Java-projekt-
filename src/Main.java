@@ -41,6 +41,8 @@ public class Main extends JFrame {
         tabelaRezerwacji.getTableHeader().setBackground(new Color(70, 130, 180));
         tabelaRezerwacji.getTableHeader().setForeground(Color.WHITE);
 
+        tabelaRezerwacji.getTableHeader().setReorderingAllowed(false);
+
         JScrollPane scrollPane = new JScrollPane(tabelaRezerwacji);
         odswiezTabele();
 
