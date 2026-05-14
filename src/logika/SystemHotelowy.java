@@ -40,11 +40,20 @@ public class SystemHotelowy implements Serializable {
         if (pokoje.isEmpty()) {
             for (int i = 1; i <= 60; i++) {
                 int pojemnosc;
-                double cena = 100.0; // ZMIANA: Każdy pokój ma teraz stałą cenę 100 zł
+                double cena;
 
-                if (i <= 20) { pojemnosc = 1; }
-                else if (i <= 40) { pojemnosc = 2; }
-                else { pojemnosc = 3; }
+                if (i <= 20) {
+                    pojemnosc = 1;
+                    cena = 100.0; // 1-osobowy za 100 zł
+                }
+                else if (i <= 40) {
+                    pojemnosc = 2;
+                    cena = 120.0; // 2-osobowy za 120 zł
+                }
+                else {
+                    pojemnosc = 3;
+                    cena = 135.0; // 3-osobowy za 135 zł
+                }
 
                 pokoje.put(i, new Pokoj(i, cena, pojemnosc));
             }

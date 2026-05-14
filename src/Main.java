@@ -11,6 +11,7 @@ import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.time.LocalDate;
+import java.util.Iterator; // Ważny import do Iteratora!
 
 public class Main extends JFrame {
     private SystemHotelowy system;
@@ -19,66 +20,55 @@ public class Main extends JFrame {
 
     public Main() {
         SystemHotelowy wczytany = NarzedziaHotelowe.wczytajSystem();
-        if (wczytany != null) {
-            SystemHotelowy.setInstancja(wczytany);
-        }
+        if (wczytany != null) SystemHotelowy.setInstancja(wczytany);
         system = SystemHotelowy.getInstancja();
         system.generujPokojeStartowe();
 
-        // Ustawienia okna
         setTitle("System Zarządzania Hotelem - Recepcja PRO");
-        setSize(1000, 500); // Jeszcze szersze okno, żeby zmieścić nowe kolumny
+        setSize(1000, 500);
         setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-        setLayout(new BorderLayout(15, 15)); // Większe marginesy w oknie
+        setLayout(new BorderLayout(15, 15));
 
-        // Nowe, ładne czcionki (wygląd komercyjnej aplikacji)
         Font czcionkaTabeli = new Font("Segoe UI", Font.PLAIN, 14);
         Font czcionkaNaglowkow = new Font("Segoe UI", Font.BOLD, 15);
 
-        // Zaktualizowane kolumny tabeli
         String[] kolumny = {"Moment Rejestracji", "Gość", "Pokój", "Data Przyjazdu", "Data Wyjazdu", "Łączna Kwota"};
         modelTabeli = new DefaultTableModel(kolumny, 0);
         tabelaRezerwacji = new JTable(modelTabeli);
-
-        // Stylowanie tabeli
         tabelaRezerwacji.setFont(czcionkaTabeli);
-        tabelaRezerwacji.setRowHeight(30); // Wyższe, bardziej czytelne wiersze
+        tabelaRezerwacji.setRowHeight(30);
         tabelaRezerwacji.getTableHeader().setFont(czcionkaNaglowkow);
-        tabelaRezerwacji.getTableHeader().setBackground(new Color(70, 130, 180)); // Niebieski kolor nagłówka
-        tabelaRezerwacji.getTableHeader().setForeground(Color.WHITE); // Biały tekst nagłówka
+        tabelaRezerwacji.getTableHeader().setBackground(new Color(70, 130, 180));
+        tabelaRezerwacji.getTableHeader().setForeground(Color.WHITE);
 
         JScrollPane scrollPane = new JScrollPane(tabelaRezerwacji);
         odswiezTabele();
 
-        // Tworzenie dolnego panelu z przyciskami (z fajnymi marginesami)
+        // Przyciski
         JPanel panelPrzyciskow = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
         panelPrzyciskow.setBorder(BorderFactory.createEmptyBorder(10, 10, 20, 10));
 
         JButton btnZamelduj = new JButton("Zamelduj Nowego Gościa");
+        JButton btnWymelduj = new JButton("Wymelduj (Zaznacz w tabeli)"); // Nowy przycisk!
         JButton btnWyjdz = new JButton("Zapisz i Wyjdź");
 
-        // Stylowanie przycisków
-        btnZamelduj.setFont(czcionkaNaglowkow);
-        btnZamelduj.setBackground(new Color(46, 139, 87)); // Zielony (Sea Green)
-        btnZamelduj.setForeground(Color.WHITE);
-        btnZamelduj.setFocusPainted(false); // Usuwa brzydką ramkę po kliknięciu
-
-        btnWyjdz.setFont(czcionkaNaglowkow);
-        btnWyjdz.setBackground(new Color(178, 34, 34)); // Czerwony (Firebrick)
-        btnWyjdz.setForeground(Color.WHITE);
-        btnWyjdz.setFocusPainted(false);
+        btnZamelduj.setFont(czcionkaNaglowkow); btnZamelduj.setBackground(new Color(46, 139, 87)); btnZamelduj.setForeground(Color.WHITE); btnZamelduj.setFocusPainted(false);
+        btnWymelduj.setFont(czcionkaNaglowkow); btnWymelduj.setBackground(new Color(255, 140, 0)); btnWymelduj.setForeground(Color.WHITE); btnWymelduj.setFocusPainted(false); // Pomarańczowy
+        btnWyjdz.setFont(czcionkaNaglowkow); btnWyjdz.setBackground(new Color(178, 34, 34)); btnWyjdz.setForeground(Color.WHITE); btnWyjdz.setFocusPainted(false);
 
         panelPrzyciskow.add(btnZamelduj);
+        panelPrzyciskow.add(btnWymelduj);
         panelPrzyciskow.add(btnWyjdz);
 
+        // Akcje przycisków
         btnZamelduj.addActionListener(e -> zameldujGoscia());
+        btnWymelduj.addActionListener(e -> wymeldujGoscia());
         btnWyjdz.addActionListener(e -> wyjdzZProgramu());
         addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) { wyjdzZProgramu(); }
         });
 
-        // Tytuł nad tabelą
         JLabel tytul = new JLabel("   Aktywne rezerwacje i meldunki w systemie:");
         tytul.setFont(new Font("Segoe UI", Font.BOLD, 18));
         tytul.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0));
@@ -87,7 +77,7 @@ public class Main extends JFrame {
         add(scrollPane, BorderLayout.CENTER);
         add(panelPrzyciskow, BorderLayout.SOUTH);
 
-        setLocationRelativeTo(null); // Wyśrodkowanie okna na ekranie
+        setLocationRelativeTo(null);
     }
 
     private void zameldujGoscia() {
@@ -101,10 +91,12 @@ public class Main extends JFrame {
             String pesel = JOptionPane.showInputDialog(this, "Podaj PESEL (11 cyfr):");
             if (pesel == null) return;
 
-            String[] opcje = {"1-osobowy", "2-osobowy", "3-osobowy"};
-            int wybor = JOptionPane.showOptionDialog(this, "Wybierz rodzaj pokoju:", "Rezerwacja",
-                    JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, opcje, opcje[1]);
+            // Pytanie o status VIP
+            int czyVipWybór = JOptionPane.showConfirmDialog(this, "Czy gość posiada kartę VIP (-15%)?", "Status VIP", JOptionPane.YES_NO_OPTION);
+            boolean isVip = (czyVipWybór == JOptionPane.YES_OPTION);
 
+            String[] opcje = {"1-osobowy", "2-osobowy", "3-osobowy"};
+            int wybor = JOptionPane.showOptionDialog(this, "Wybierz rodzaj pokoju:", "Rezerwacja", JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, opcje, opcje[1]);
             if (wybor == -1) return;
             int wymaganaPojemnosc = wybor + 1;
 
@@ -115,7 +107,7 @@ public class Main extends JFrame {
             Pokoj przypisanyPokoj = system.znajdzWolnyPokoj(wymaganaPojemnosc);
 
             if (przypisanyPokoj != null) {
-                Gosc gosc = new Gosc(imie, nazwisko, pesel);
+                Gosc gosc = new Gosc(imie, nazwisko, pesel, isVip); // Zmieniony konstruktor!
                 system.dodajGoscia(gosc);
 
                 Rezerwacja nowaRezerwacja = new Rezerwacja(gosc, przypisanyPokoj, LocalDate.now(), liczbaNocy);
@@ -136,16 +128,54 @@ public class Main extends JFrame {
         }
     }
 
+    // Wymaganie: Iterator
+    private void wymeldujGoscia() {
+        int zaznaczonyWiersz = tabelaRezerwacji.getSelectedRow();
+        if (zaznaczonyWiersz == -1) {
+            JOptionPane.showMessageDialog(this, "Najpierw zaznacz gościa w tabeli!", "Błąd", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        // Pobieramy rezerwację z pamięci, która odpowiada klikniętemu wierszowi w tabeli
+        Rezerwacja rDoUsuniecia = system.getRezerwacje().get(zaznaczonyWiersz);
+
+        // Używamy Iteratora do poprawnego i bezpiecznego usunięcia z listy w trakcie działania programu
+        Iterator<Rezerwacja> iterator = system.getRezerwacje().iterator();
+        while (iterator.hasNext()) {
+            Rezerwacja r = iterator.next();
+            if (r.equals(rDoUsuniecia)) {
+                // 1. Zapis pliku z paragonem
+                NarzedziaHotelowe.generujParagon(r);
+                // 2. Zwalniamy pokój hotelowy
+                r.getPokoj().setCzyZajety(false);
+                // 3. Usuwamy z listy rezerwacji iteratorem
+                iterator.remove();
+                break;
+            }
+        }
+
+        odswiezTabele();
+        JOptionPane.showMessageDialog(this, "Gość wymeldowany! Pokój jest znowu wolny.\nWygenerowano paragon w folderze projektu.", "Wymeldowanie", JOptionPane.INFORMATION_MESSAGE);
+    }
+
     private void odswiezTabele() {
         modelTabeli.setRowCount(0);
         for (Rezerwacja r : system.getRezerwacje()) {
+
+            // Formatowanie imienia i nazwiska z obsługą statusu VIP
+            String daneGoscia = r.getGosc().getImie() + " " + r.getGosc().getNazwisko();
+            if (r.getGosc().isCzyVip()) {
+                // NOWOŚĆ: dodaliśmy tag <nobr>, który ZABRANIA przechodzenia do nowej linii!
+                daneGoscia = "<html><nobr><font color='#DAA520'><b>👑 VIP</b></font> " + daneGoscia + "</nobr></html>";
+            }
+
             Object[] wiersz = {
                     r.getSformatowanyCzas(),
-                    r.getGosc().getImie() + " " + r.getGosc().getNazwisko(),
+                    daneGoscia,
                     "Nr " + r.getPokoj().getNumer() + " (" + r.getPokoj().getPojemnosc() + "-os)",
-                    r.getDataPrzyjazdu().toString(), // NOWOŚĆ: Data przyjazdu
+                    r.getDataPrzyjazdu().toString(),
                     r.getDataWyjazdu().toString(),
-                    r.getLacznaKwota() + " zł"       // NOWOŚĆ: Obliczona łączna kwota (dni * 100 zł)
+                    r.getLacznaKwota() + " zł"
             };
             modelTabeli.addRow(wiersz);
         }
@@ -157,7 +187,6 @@ public class Main extends JFrame {
     }
 
     public static void main(String[] args) {
-        // Uruchamiamy nowy, piękny interfejs!
         SwingUtilities.invokeLater(() -> new Main().setVisible(true));
     }
 }

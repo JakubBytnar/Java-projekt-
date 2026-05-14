@@ -4,7 +4,7 @@ import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoUnit; // Dodany import do liczenia różnicy dat
+import java.time.temporal.ChronoUnit;
 
 public class Rezerwacja implements Serializable {
     private Gosc gosc;
@@ -27,11 +27,12 @@ public class Rezerwacja implements Serializable {
     public LocalDate getDataPrzyjazdu() { return dataPrzyjazdu; }
     public LocalDate getDataWyjazdu() { return dataWyjazdu; }
 
-    // NOWOŚĆ: Metoda obliczająca łączną kwotę za pobyt
     public double getLacznaKwota() {
-        // Liczy ilość dni między datą przyjazdu a wyjazdu
         long liczbaNocy = ChronoUnit.DAYS.between(dataPrzyjazdu, dataWyjazdu);
-        return liczbaNocy * pokoj.getCenaZaNoc();
+        double kwotaPodstawowa = liczbaNocy * pokoj.getCenaZaNoc();
+
+        // Zastosowanie polimorfizmu i interfejsu!
+        return gosc.naliczZnizke(kwotaPodstawowa);
     }
 
     public String getSformatowanyCzas() {
