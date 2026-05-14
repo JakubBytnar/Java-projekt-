@@ -19,9 +19,8 @@ public class Main extends JFrame {
     private JTable tabelaRezerwacji;
 
     public Main() {
-        SystemHotelowy wczytany = NarzedziaHotelowe.wczytajSystem();
-        if (wczytany != null) SystemHotelowy.setInstancja(wczytany);
-        system = SystemHotelowy.getInstancja();
+        system = NarzedziaHotelowe.wczytajSystem();
+        SystemHotelowy.setInstancja(system);
         system.generujPokojeStartowe();
 
         setTitle("System Zarządzania Hotelem - Recepcja PRO");
