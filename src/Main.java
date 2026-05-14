@@ -160,12 +160,16 @@ public class Main extends JFrame {
 
     private void odswiezTabele() {
         modelTabeli.setRowCount(0);
+
+        // NOWOŚĆ: Podpinamy nasz komparator! Sortuje listę przed wyświetleniem w tabeli
+        system.getRezerwacje().sort(new narzedzia.KomparatorRezerwacji());
+
         for (Rezerwacja r : system.getRezerwacje()) {
 
             // Formatowanie imienia i nazwiska z obsługą statusu VIP
             String daneGoscia = r.getGosc().getImie() + " " + r.getGosc().getNazwisko();
             if (r.getGosc().isCzyVip()) {
-                // NOWOŚĆ: dodaliśmy tag <nobr>, który ZABRANIA przechodzenia do nowej linii!
+                // Nasz tag <nobr>, który wdrożyliśmy wcześniej
                 daneGoscia = "<html><nobr><font color='#DAA520'><b>👑 VIP</b></font> " + daneGoscia + "</nobr></html>";
             }
 
