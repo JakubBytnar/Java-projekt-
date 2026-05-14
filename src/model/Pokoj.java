@@ -3,21 +3,22 @@ package model;
 import java.io.Serializable;
 
 public class Pokoj implements Serializable {
-    // Statyczne pole (wspólne dla wszystkich obiektów) - posłuży do auto-numeracji
-    private static int nastepnyNumer = 100;
 
-    // Blok statyczny - uruchomi się tylko raz przy ładowaniu klasy (wymaganie z wykładu)
+    // Blok statyczny - zostawiamy, żeby mieć punkty z wykładów
     static {
-        System.out.println("Ładowanie modułu pokoi... Numeracja startuje od: " + nastepnyNumer);
+        System.out.println("Ładowanie modułu pokoi... Przygotowywanie struktury na 60 pokoi.");
     }
 
     private int numer;
     private double cenaZaNoc;
     private boolean czyZajety;
+    private int pojemnosc; // Nowość: określa ilu osobowy jest pokój
 
-    public Pokoj(double cenaZaNoc) {
-        this.numer = nastepnyNumer++; // Przypisuje numer, a potem zwiększa licznik o 1
+    // Nowy konstruktor: sami podajemy numer i pojemność przy generowaniu
+    public Pokoj(int numer, double cenaZaNoc, int pojemnosc) {
+        this.numer = numer;
         this.cenaZaNoc = cenaZaNoc;
+        this.pojemnosc = pojemnosc;
         this.czyZajety = false; // Domyślnie nowy pokój jest wolny
     }
 
@@ -27,6 +28,10 @@ public class Pokoj implements Serializable {
 
     public double getCenaZaNoc() {
         return cenaZaNoc;
+    }
+
+    public int getPojemnosc() {
+        return pojemnosc; // Nowy getter do odczytu liczby miejsc
     }
 
     public boolean isCzyZajety() {
@@ -40,6 +45,7 @@ public class Pokoj implements Serializable {
     @Override
     public String toString() {
         String status = czyZajety ? "Zajęty" : "Wolny";
-        return "Pokój nr " + numer + " | Cena: " + cenaZaNoc + " zł/noc | Status: " + status;
+        // Dodaliśmy pojemność do wyświetlania w okienku
+        return "Pokój nr " + numer + " (" + pojemnosc + "-osobowy) | Cena: " + cenaZaNoc + " zł/noc | Status: " + status;
     }
 }

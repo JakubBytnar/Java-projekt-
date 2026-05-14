@@ -1,12 +1,12 @@
 package model;
 
-// Apartament dziedziczy po Pokoju
 public class Apartament extends Pokoj {
-    private String nazwaWlasna; // np. "Apartament Prezydencki"
+    private String nazwaWlasna;
     private boolean maZaciemnienie;
 
-    public Apartament(double cenaZaNoc, String nazwaWlasna, boolean maZaciemnienie) {
-        super(cenaZaNoc); // Wywołanie konstruktora klasy bazowej (Pokoj)
+    // Musimy przekazać numer i pojemność do klasy bazowej Pokoj
+    public Apartament(int numer, double cenaZaNoc, int pojemnosc, String nazwaWlasna, boolean maZaciemnienie) {
+        super(numer, cenaZaNoc, pojemnosc);
         this.nazwaWlasna = nazwaWlasna;
         this.maZaciemnienie = maZaciemnienie;
     }

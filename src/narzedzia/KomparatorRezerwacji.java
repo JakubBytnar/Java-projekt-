@@ -6,8 +6,7 @@ import java.util.Comparator;
 public class KomparatorRezerwacji implements Comparator<Rezerwacja> {
     @Override
     public int compare(Rezerwacja r1, Rezerwacja r2) {
-        // Porównujemy daty przyjazdu (dataOd)
-        // Jeśli r1 jest wcześniej niż r2, zwróci wartość ujemną (r1 będzie wyżej na liście)
-        return r1.getDataOd().compareTo(r2.getDataOd());
+        // Zmieniliśmy "getDataOd()" na nową nazwę: "getDataPrzyjazdu()"
+        return r1.getDataPrzyjazdu().compareTo(r2.getDataPrzyjazdu());
     }
 }
