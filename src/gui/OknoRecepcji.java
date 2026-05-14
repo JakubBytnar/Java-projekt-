@@ -91,6 +91,15 @@ public class OknoRecepcji extends JFrame {
             String pesel = JOptionPane.showInputDialog(this, "Podaj PESEL (11 cyfr):");
             if (pesel == null) return;
 
+            // --- POCZĄTEK NOWEJ WALIDACJI ---
+            if (imie.trim().isEmpty() || nazwisko.trim().isEmpty()) {
+                throw new ZleDaneWyjatek("Imię i nazwisko nie mogą być puste!");
+            }
+            if (pesel.trim().isEmpty()) {
+                throw new ZleDaneWyjatek("PESEL nie może być pusty!");
+            }
+            // --- KONIEC NOWEJ WALIDACJI ---
+
             int czyVipWybor = JOptionPane.showConfirmDialog(this, "Czy gość posiada kartę VIP (-15%)?", "Status VIP", JOptionPane.YES_NO_OPTION);
             boolean isVip = (czyVipWybor == JOptionPane.YES_OPTION);
 
@@ -103,10 +112,15 @@ public class OknoRecepcji extends JFrame {
             if (noceStr == null) return;
             int liczbaNocy = Integer.parseInt(noceStr);
 
+            // --- WALIDACJA LICZBY NOCY ---
+            if (liczbaNocy <= 0) {
+                throw new ZleDaneWyjatek("Liczba nocy musi być większa od zera!");
+            }
+
             Pokoj przypisanyPokoj = system.znajdzWolnyPokoj(wymaganaPojemnosc);
 
             if (przypisanyPokoj != null) {
-                Gosc gosc = new Gosc(imie, nazwisko, pesel, isVip);
+                Gosc gosc = new Gosc(imie.trim(), nazwisko.trim(), pesel.trim(), isVip);
                 system.dodajGoscia(gosc);
 
                 Rezerwacja nowaRezerwacja = new Rezerwacja(gosc, przypisanyPokoj, LocalDate.now(), liczbaNocy);
@@ -121,9 +135,10 @@ public class OknoRecepcji extends JFrame {
             }
 
         } catch (ZleDaneWyjatek ex) {
-            JOptionPane.showMessageDialog(this, ex.getMessage(), "Błąd walidacji!", JOptionPane.ERROR_MESSAGE);
+            // Dzięki temu, że rzucamy ZleDaneWyjatek, tutaj zostanie on złapany i wyświetlony!
+            JOptionPane.showMessageDialog(this, ex.getMessage(), "Błąd danych", JOptionPane.ERROR_MESSAGE);
         } catch (NumberFormatException ex) {
-            JOptionPane.showMessageDialog(this, "Błąd: Liczba nocy musi być cyfrą!", "Błąd", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Błąd: Liczba nocy musi być liczbą całkowitą!", "Błąd", JOptionPane.ERROR_MESSAGE);
         }
     }
 
