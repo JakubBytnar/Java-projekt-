@@ -2,7 +2,8 @@ package model;
 
 import wyjatki.ZleDaneWyjatek;
 import java.io.Serializable;
-import java.util.Objects; // NOWOŚĆ: Potrzebne do bezpiecznego porównywania
+import java.math.BigDecimal; // NOWOŚĆ
+import java.util.Objects;
 
 public class Gosc extends Osoba implements Serializable, Rabat {
     private String pesel;
@@ -24,10 +25,13 @@ public class Gosc extends Osoba implements Serializable, Rabat {
         this.pesel = pesel;
     }
 
+    // ZMIANA: Implementacja zniżki przy użyciu BigDecimal
     @Override
-    public double naliczZnizke(double kwotaPoczatkowa) {
+    public BigDecimal naliczZnizke(BigDecimal kwotaPoczatkowa) {
         if (czyVip) {
-            return kwotaPoczatkowa * 0.85;
+            // Mnożymy przez 0.85 (czyli ucinamy 15%) przy pomocy metody multiply()
+            BigDecimal mnoznik = new BigDecimal("0.85");
+            return kwotaPoczatkowa.multiply(mnoznik);
         }
         return kwotaPoczatkowa;
     }
@@ -38,26 +42,16 @@ public class Gosc extends Osoba implements Serializable, Rabat {
         return "Gość: " + getImie() + " " + getNazwisko() + " (PESEL: " + pesel + ")" + status;
     }
 
-    // =================================================================
-    // NOWOŚĆ: Naprawa błędu z duplikatami (Kontrakt equals i hashCode)
-    // =================================================================
-
     @Override
     public boolean equals(Object o) {
-        // 1. Jeśli to ten sam obiekt w pamięci, to na pewno są identyczni
         if (this == o) return true;
-        // 2. Jeśli porównywany obiekt jest nullem lub z innej klasy, to nie są tacy sami
         if (o == null || getClass() != o.getClass()) return false;
-
-        // 3. Rzutujemy na Gościa i porównujemy ich PESEL-e
         Gosc gosc = (Gosc) o;
         return Objects.equals(pesel, gosc.pesel);
     }
 
     @Override
     public int hashCode() {
-        // Generuje unikalny kod (tzw. hash) na podstawie numeru PESEL.
-        // Dzięki temu Set (zbiór) w Systemie Hotelowym wie, gdzie szukać duplikatów.
         return Objects.hash(pesel);
     }
 }

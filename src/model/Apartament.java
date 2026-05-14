@@ -1,19 +1,19 @@
 package model;
 
+import java.math.BigDecimal; // NOWOŚĆ
+
 public class Apartament extends Pokoj {
     private String nazwaWlasna;
     private boolean maZaciemnienie;
 
-    // Musimy przekazać numer i pojemność do klasy bazowej Pokoj
-    public Apartament(int numer, double cenaZaNoc, int pojemnosc, String nazwaWlasna, boolean maZaciemnienie) {
+    // ZMIANA: Konstruktor przyjmuje BigDecimal
+    public Apartament(int numer, BigDecimal cenaZaNoc, int pojemnosc, String nazwaWlasna, boolean maZaciemnienie) {
         super(numer, cenaZaNoc, pojemnosc);
         this.nazwaWlasna = nazwaWlasna;
         this.maZaciemnienie = maZaciemnienie;
     }
 
-    public String getNazwaWlasna() {
-        return nazwaWlasna;
-    }
+    public String getNazwaWlasna() { return nazwaWlasna; }
 
     @Override
     public String toString() {

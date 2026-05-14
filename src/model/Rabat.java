@@ -1,6 +1,8 @@
 package model;
 
+import java.math.BigDecimal; // NOWOŚĆ
+
 // Wymaganie z wykładu: Interfejs
 public interface Rabat {
-    double naliczZnizke(double kwotaPoczatkowa);
+    BigDecimal naliczZnizke(BigDecimal kwotaPoczatkowa); // ZMIANA
 }

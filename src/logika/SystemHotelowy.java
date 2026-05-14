@@ -5,6 +5,7 @@ import model.Pokoj;
 import model.Rezerwacja;
 
 import java.io.Serializable;
+import java.math.BigDecimal; // NOWOŚĆ
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -15,13 +16,13 @@ import java.util.Set;
 public class SystemHotelowy implements Serializable {
 
     private static final int MAX_LICZBA_POKOI = 60;
-
     private static final int LIMIT_POKOI_1_OS = 20;
     private static final int LIMIT_POKOI_2_OS = 40;
 
-    private static final double CENA_1_OS = 100.0;
-    private static final double CENA_2_OS = 120.0;
-    private static final double CENA_3_OS = 135.0;
+    // ZMIANA: Inicjalizacja profesjonalnych wartości finansowych
+    private static final BigDecimal CENA_1_OS = BigDecimal.valueOf(100.0);
+    private static final BigDecimal CENA_2_OS = BigDecimal.valueOf(120.0);
+    private static final BigDecimal CENA_3_OS = BigDecimal.valueOf(135.0);
 
     private static SystemHotelowy instancja;
 
@@ -46,12 +47,11 @@ public class SystemHotelowy implements Serializable {
         instancja = wczytanaInstancja;
     }
 
-    // Generator używa teraz profesjonalnych, opisowych stałych
     public void generujPokojeStartowe() {
         if (pokoje.isEmpty()) {
             for (int i = 1; i <= MAX_LICZBA_POKOI; i++) {
                 int pojemnosc;
-                double cena;
+                BigDecimal cena; // ZMIANA
 
                 if (i <= LIMIT_POKOI_1_OS) {
                     pojemnosc = 1;
