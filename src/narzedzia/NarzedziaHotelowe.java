@@ -18,12 +18,20 @@ public class NarzedziaHotelowe {
         }
     }
 
+    // ZMIANA: Metoda nigdy nie zwróci null (Rada kuzyna - bezpieczeństwo)
     public static SystemHotelowy wczytajSystem() {
         try (ObjectInputStream we = new ObjectInputStream(new FileInputStream(PLIK_ZAPISU))) {
-            return (SystemHotelowy) we.readObject();
-        } catch (Exception e) {
-            return null;
+            SystemHotelowy wczytany = (SystemHotelowy) we.readObject();
+            System.out.println("Dane systemu zostały pomyślnie wczytane z pliku.");
+            return wczytany;
+        } catch (FileNotFoundException e) {
+            System.out.println("Plik bazy nie istnieje. Inicjalizacja nowego systemu.");
+        } catch (IOException | ClassNotFoundException e) {
+            System.out.println("Wykryto błąd lub niekompatybilność pliku bazy. Tworzenie nowej bazy danych.");
         }
+
+        // Zamiast zwracać null, zwracamy czysty, działający obiekt Singletona
+        return SystemHotelowy.getInstancja();
     }
 
     // --- Wymaganie: Operacje plikowe (BufferedWriter) ---
