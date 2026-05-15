@@ -20,7 +20,6 @@ public class OknoRecepcji extends JFrame {
     private DefaultTableModel modelTabeli;
     private JTable tabelaRezerwacji;
 
-    // ZMIANA: Konstruktor okna przyjmuje wczytany wcześniej system
     public OknoRecepcji(SystemHotelowy system) {
         this.system = system;
 
@@ -33,7 +32,15 @@ public class OknoRecepcji extends JFrame {
         Font czcionkaNaglowkow = new Font("Segoe UI", Font.BOLD, 15);
 
         String[] kolumny = {"Moment Rejestracji", "Gość", "Pokój", "Data Przyjazdu", "Data Wyjazdu", "Łączna Kwota"};
-        modelTabeli = new DefaultTableModel(kolumny, 0);
+
+        // --- NOWOŚĆ: Nadpisujemy model tabeli, aby zablokować edycję komórek z palca ---
+        modelTabeli = new DefaultTableModel(kolumny, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false; // Zwraca 'false' dla każdej komórki, całkowicie blokując edycję
+            }
+        };
+
         tabelaRezerwacji = new JTable(modelTabeli);
         tabelaRezerwacji.setFont(czcionkaTabeli);
         tabelaRezerwacji.setRowHeight(30);
@@ -41,6 +48,7 @@ public class OknoRecepcji extends JFrame {
         tabelaRezerwacji.getTableHeader().setBackground(new Color(70, 130, 180));
         tabelaRezerwacji.getTableHeader().setForeground(Color.WHITE);
         tabelaRezerwacji.getTableHeader().setReorderingAllowed(false); // Blokada przesuwania kolumn
+        tabelaRezerwacji.getTableHeader().setResizingAllowed(false); // Blokada rozciągania kolumn
 
         JScrollPane scrollPane = new JScrollPane(tabelaRezerwacji);
         odswiezTabele();
@@ -52,6 +60,17 @@ public class OknoRecepcji extends JFrame {
         JButton btnZamelduj = new JButton("Zamelduj Nowego Gościa");
         JButton btnWymelduj = new JButton("Wymelduj (Zaznacz w tabeli)");
         JButton btnWyjdz = new JButton("Zapisz i Wyjdź");
+
+        // --- POPRAWKA DLA MACOSA (Wymuszenie kolorów) ---
+        btnZamelduj.setOpaque(true);
+        btnZamelduj.setBorderPainted(false);
+
+        btnWymelduj.setOpaque(true);
+        btnWymelduj.setBorderPainted(false);
+
+        btnWyjdz.setOpaque(true);
+        btnWyjdz.setBorderPainted(false);
+        // ------------------------------------------------
 
         btnZamelduj.setFont(czcionkaNaglowkow); btnZamelduj.setBackground(new Color(46, 139, 87)); btnZamelduj.setForeground(Color.WHITE); btnZamelduj.setFocusPainted(false);
         btnWymelduj.setFont(czcionkaNaglowkow); btnWymelduj.setBackground(new Color(255, 140, 0)); btnWymelduj.setForeground(Color.WHITE); btnWymelduj.setFocusPainted(false);
@@ -91,14 +110,14 @@ public class OknoRecepcji extends JFrame {
             String pesel = JOptionPane.showInputDialog(this, "Podaj PESEL (11 cyfr):");
             if (pesel == null) return;
 
-            // --- POCZĄTEK NOWEJ WALIDACJI ---
+            // --- POCZĄTEK WALIDACJI ---
             if (imie.trim().isEmpty() || nazwisko.trim().isEmpty()) {
                 throw new ZleDaneWyjatek("Imię i nazwisko nie mogą być puste!");
             }
             if (pesel.trim().isEmpty()) {
                 throw new ZleDaneWyjatek("PESEL nie może być pusty!");
             }
-            // --- KONIEC NOWEJ WALIDACJI ---
+            // --- KONIEC WALIDACJI ---
 
             int czyVipWybor = JOptionPane.showConfirmDialog(this, "Czy gość posiada kartę VIP (-15%)?", "Status VIP", JOptionPane.YES_NO_OPTION);
             boolean isVip = (czyVipWybor == JOptionPane.YES_OPTION);
@@ -135,7 +154,6 @@ public class OknoRecepcji extends JFrame {
             }
 
         } catch (ZleDaneWyjatek ex) {
-            // Dzięki temu, że rzucamy ZleDaneWyjatek, tutaj zostanie on złapany i wyświetlony!
             JOptionPane.showMessageDialog(this, ex.getMessage(), "Błąd danych", JOptionPane.ERROR_MESSAGE);
         } catch (NumberFormatException ex) {
             JOptionPane.showMessageDialog(this, "Błąd: Liczba nocy musi być liczbą całkowitą!", "Błąd", JOptionPane.ERROR_MESSAGE);
@@ -169,7 +187,6 @@ public class OknoRecepcji extends JFrame {
     private void odswiezTabele() {
         modelTabeli.setRowCount(0);
 
-        // Komparator układa rezerwacje wg daty
         system.getRezerwacje().sort(new narzedzia.KomparatorRezerwacji());
 
         for (Rezerwacja r : system.getRezerwacje()) {
